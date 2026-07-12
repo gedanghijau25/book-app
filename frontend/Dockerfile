@@ -1,13 +1,21 @@
-#Base Image Node.js 20
-FROM node:20
+# ---------- Stage 1 : Build ----------
+FROM node:20-alpine AS builder
 
-# install dependencies
 WORKDIR /app
-COPY package*.json bun.lockb ./
 
-# Copy to Workdir
+COPY package*.json ./
+
+RUN npm ci
+
 COPY . .
-RUN npm install
 
-EXPOSE 8080
-CMD ["npm", "run", "dev" ]
+RUN npm run build
+
+# ---------- Stage 2 : Runtime ----------
+FROM nginx:alpine
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

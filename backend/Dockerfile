@@ -1,34 +1,23 @@
-# Gunakan image dasar Python
-FROM python:3.11-slim
+# Stage 1 - Build dependencies
+FROM python:3.11-slim AS builder
 
-# Instal dependensi sistem yang diperlukan (build dependencies)
-RUN apt-get update && apt-get install -y \
-  libpq-dev \
-  python3-dev \
-  default-libmysqlclient-dev \
-  build-essential \
-  pkg-config \
-  cron \
-  && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Set environment variables
-ENV TZ=Asia/Jakarta
-
-# create workdir
 WORKDIR /app
 
-# Copy all to workdir
-COPY ./requirements.txt ./
+COPY requirements.txt .
 
-# Perbarui pip dan install dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /app/requirements.txt --verbose
+    pip install --no-cache-dir --prefix=/install -r requirements.txt
 
-# Copy all files
+# Stage 2 - Runtime
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY --from=builder /install /usr/local
 COPY . .
 
-# Expose Port
+ENV PYTHONUNBUFFERED=1
+
 EXPOSE 5001
 
-# Start app.py
 CMD ["python", "app.py"]
