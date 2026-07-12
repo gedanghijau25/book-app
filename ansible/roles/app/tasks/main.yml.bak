@@ -1,0 +1,13 @@
+---
+- name: Install required packages
+  package:
+    name:
+      - git
+      - docker
+    state: present
+
+- name: Enable docker service
+  systemd:
+    name: docker
+    enabled: true
+    state: started

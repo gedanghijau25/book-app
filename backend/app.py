@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from prometheus_flask_exporter import PrometheusMetrics
 from datetime import datetime
 import json
 import os
@@ -9,6 +10,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+
+metrics = PrometheusMetrics(app)
+
+@app.route('/health', methods=['GET'])
+def health():
+    return {
+        "status": "UP",
+        "service": "book-backend"
+    }, 200
 
 # Get configuration from environment variables
 FLASK_HOST = os.getenv('FLASK_HOST', '0.0.0.0')

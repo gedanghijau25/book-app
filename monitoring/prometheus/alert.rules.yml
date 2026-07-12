@@ -1,0 +1,20 @@
+groups:
+
+- name: book-app-alerts
+
+  rules:
+
+  - alert: BookBackendDown
+
+    expr: up{job="book-backend"} == 0
+
+    for: 1m
+
+    labels:
+      severity: critical
+
+    annotations:
+
+      summary: "Book backend is down"
+
+      description: "Book backend tidak merespon Prometheus"

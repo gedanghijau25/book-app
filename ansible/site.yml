@@ -1,0 +1,7 @@
+---
+- name: Setup Book App Environment
+  hosts: app
+  become: true
+
+  roles:
+    - app
